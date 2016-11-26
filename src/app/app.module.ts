@@ -11,13 +11,15 @@ import { HomeComponent } from './home/home.component';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/mergeMap';
+import { CardPickerComponent } from './card-picker/card-picker.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     DropinComponent,
-    HomeComponent
+    HomeComponent,
+    CardPickerComponent
   ],
   imports: [
     BrowserModule,

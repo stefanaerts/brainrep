@@ -16,4 +16,8 @@ goToDropin() {
     let link = ['/dropin'];
     this.router.navigate(link);
   }
+  goToCardPicker() {
+    let link = ['/cardpicker'];
+    this.router.navigate(link);
+  }
 }
