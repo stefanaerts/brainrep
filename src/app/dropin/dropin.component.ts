@@ -55,7 +55,7 @@ export class DropinComponent implements OnInit, AfterViewInit {
 
   makeTransaction() {
     let form: HTMLFormElement = (<HTMLFormElement>document.querySelector('#checkout-form'));
-    let submit: HTMLElement = (<HTMLElement>document.querySelector('input[type="submit"]'));
+    let submit: HTMLElement = (<HTMLElement>document.getElementById('submitBtn'));
 
 
     console.info('author=' + this.authorization);
@@ -114,7 +114,22 @@ export class DropinComponent implements OnInit, AfterViewInit {
           return;
         }
 
+        hostedFieldsInstance.on('validityChange', function (event) {
+          // Check if all fields are valid, then show submit button
+          var formValid = Object.keys(event.fields).every(function (key) {
+            return event.fields[key].isValid;
+          });
 
+          if (formValid) {
+            submit.style.backgroundColor = '#E91E63';
+             submit.removeAttribute('disabled');
+             submit.setAttribute('class', 'pay-button');
+          } else {
+            submit.style.backgroundColor = 'rgba(0, 0, 0, .54)';
+            submit.setAttribute('disabled', 'true');
+             submit.setAttribute('class', 'pay-button-dence');
+          }
+        });
 
         hostedFieldsInstance.on('focus', function (event) {
           var field = event.fields[event.emittedBy];
@@ -141,42 +156,51 @@ export class DropinComponent implements OnInit, AfterViewInit {
           $(field.container).next('.hosted-field--label').removeClass('filled').removeClass('invalid');
         });
 
-        hostedFieldsInstance.on('validityChange', function (event) {
-          var field = event.fields[event.emittedBy];
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
 
-          if (field.isPotentiallyValid) {
-            $(field.container).next('.hosted-field--label').removeClass('invalid');
-          } else {
-            $(field.container).next('.hosted-field--label').addClass('invalid');
+        hostedFieldsInstance.tokenize(function (tokenizeErr, payload) {
+          if (tokenizeErr) {
+            console.error('tokenizeErr=' + JSON.stringify(tokenizeErr));
+
+            return;
           }
-        });
+          // If this was a real integration, this is where you would
+          // send the nonce to your server.
+          console.log('Got a nonce: ' + payload.nonce);
 
-
-        submit.removeAttribute('disabled');
-        submit.style.backgroundColor = '#E91E63';
-        form.addEventListener('submit', function (event) {
-          event.preventDefault();
-
-          hostedFieldsInstance.tokenize(function (tokenizeErr, payload) {
-            if (tokenizeErr) {
-              console.error('tokenizeErr=' + JSON.stringify(tokenizeErr));
-
-              return;
+          $.ajax({
+            url: 'http://localhost:3000/checkout',
+            type: 'POST',
+            data: JSON.stringify({
+              payment_method_nonce: payload.nonce
+            }),
+            contentType: 'application/json',
+            success: function (data) {
+              console.log(data.success);
+              if (data.success) {
+                alert('Payment authorized, thanks.');
+              } else {
+                alert('Payment failed: ' + data.message + ' Please refresh the page and try again.');
+              }
+            },
+            error: function (error) {
+              alert('Error: cannot connect to server. Please make sure your server is running.');
             }
- // If this was a real integration, this is where you would
-              // send the nonce to your server.
-              console.log('Got a nonce: ' + payload.nonce);
-
-            // Put `payload.nonce` into the `payment-method-nonce` input, and then
-            // submit the form. Alternatively, you could send the nonce to your server
-            // with AJAX.
-            (<HTMLInputElement>document.querySelector('input[name="payment-method-nonce"]')).value = payload.nonce;
-            form.action = 'http://localhost:3000/checkout';
-            form.submit();
-            console.info('na submit form');
           });
-        }, false);
-      });
+          //     var json = JSON.stringify([{"payment_method_nonce":payload.nonce}]);
+          //    document.getElementById('payment-method-nonce').setAttribute('value', json);
+          //       console.log('voor submit form' + $.parseJSON($('#inputF').val()));
+          //console.log('voor submit form' + (<HTMLInputElement>document.getElementById('payment-method-nonce')).value);
+          // Put `payload.nonce` into the `payment-method-nonce` input, and then
+          // submit the form. Alternatively, you could send the nonce to your server
+          // with AJAX.
+          //    (<HTMLInputElement>document.querySelector('input[name="payment-method-nonce"]')).value = payload.nonce;
+          //   form.action = 'http://localhost:3000/checkout';
+          //       form.submit();
+        });
+      }, false);
     });
-  }
+  });
+}
 }

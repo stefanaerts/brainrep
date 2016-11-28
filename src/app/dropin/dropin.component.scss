@@ -136,18 +136,42 @@ svg {
 }
 
 .pay-button {
-  background: #E91E63;
+  //background: #E91E63;
+ // Button text: 13pt Roboto medium
+//Button height: 32dp
+// Button text left and right padding: 16dp
+// Corner radius: 2dp
+  font: Roboto medium;
   background: dimgrey;
   color: #fff;
   margin: 0 auto;
   border: 0;
-  border-radius: 3px;
-  padding: 1em 3em;
+  border-radius: 2px;
+  height: 36px;
+ // padding: 1em 3em;
   font-size: 1em;
   text-transform: uppercase;
   box-shadow: 0 0 2px rgba(0, 0, 0, .12), 0 2px 2px rgba(0, 0, 0, .2);
 }
 
+.pay-button-dence {
+  //background: #E91E63;
+ // Button text: 13pt Roboto medium
+//Button height: 32dp
+// Button text left and right padding: 16dp
+// Corner radius: 2dp
+  font: Roboto medium;
+  background: dimgrey;
+  color: #fff;
+  margin: 0 auto;
+  border: 0;
+  border-radius: 2px;
+  height: 32px;
+ // padding: 1em 3em;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .12), 0 2px 2px rgba(0, 0, 0, .2);
+}
 
 /*--------------------
 BT HOSTED FIELDS SPECIFIC
@@ -168,7 +192,7 @@ BT HOSTED FIELDS SPECIFIC
 Media Queries
 ----------------------*/
 
-@media (max-width: 600px) {
+@media (max-width: 100vw) {
   html {
     overflow: auto;
   }
@@ -185,7 +209,10 @@ Media Queries
     float: none;
     display: inline-block;
   }
+
+  .pay-button-dence,
   .pay-button {
     width: 100%;
   }
+
 }

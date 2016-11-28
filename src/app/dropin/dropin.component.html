@@ -34,8 +34,8 @@
 </style>
 <![endif]-->
 
-<form id="checkout-form" action="" method="post">
-   <div id="error-message"></div>
+<form id="checkout-form" enctype="application/json" action="http://localhost:3000/checkout" method="post">
+  <div id="error-message"></div>
   <div class="panel">
     <header class="panel__header">
       <h1>Card Payment</h1>
@@ -84,10 +84,7 @@
     </div>
 
     <footer class="panel__footer">
-      <input class="pay-button" type="submit" value="Pay" disabled>
-      <input type="hidden" name="payment-method-nonce">
-      <!--<input type="submit" value="Pay $10" disabled>-->
+      <button id="submitBtn" class="pay-button-dence" disabled>Pay</button>
     </footer>
   </div>
 </form>
-
