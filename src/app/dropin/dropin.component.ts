@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { Component, OnInit, AfterViewInit, ViewChild, NgZone } from '@angular/core';
 import { MdInput } from '@angular/material';
@@ -5,6 +6,7 @@ import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/first';
 import * as braintree from 'braintree-web';
+
 declare var $: any;
 @Component({
   selector: 'app-dropin',
@@ -21,12 +23,14 @@ export class DropinComponent implements OnInit, AfterViewInit {
   //  @ViewChild('submit') submit;
 
 
-  constructor(public http: Http, private _zone: NgZone) {
+  constructor(public http: Http) {
     this.message = "...Loading";
   }
 
   getToken() {
-    this.http.get('http://localhost:3000/api/v1/token').first().subscribe(
+
+
+    this.http.get(environment.AWSURL + 'api/v1/token').first().subscribe(
       data => {
 
         if (data.status === 200) {
@@ -36,10 +40,10 @@ export class DropinComponent implements OnInit, AfterViewInit {
           this.makeTransaction();
         }
         else {
-          console.log("error in getToken, status =" + data.status + "REASON: " + data.statusText);
+          console.error("error in getToken, status =" + data.status + "REASON: " + data.statusText);
         }
       }, (error: any) => {
-        console.log("error in subscribe gettoken=" + error);
+        console.error("error in subscribe gettoken=" + error);
       }
     );
   }
@@ -56,9 +60,6 @@ export class DropinComponent implements OnInit, AfterViewInit {
   makeTransaction() {
     let form: HTMLFormElement = (<HTMLFormElement>document.querySelector('#checkout-form'));
     let submit: HTMLElement = (<HTMLElement>document.getElementById('submitBtn'));
-
-
-    console.info('author=' + this.authorization);
 
 
     braintree.client.create({
@@ -162,42 +163,41 @@ export class DropinComponent implements OnInit, AfterViewInit {
         hostedFieldsInstance.tokenize(function (tokenizeErr, payload) {
           if (tokenizeErr) {
             console.error('tokenizeErr=' + JSON.stringify(tokenizeErr));
-
+           alert('Error: cannot connect to tokenize server. Please make sure your server is running.');
             return;
           }
           // If this was a real integration, this is where you would
           // send the nonce to your server.
-          console.log('Got a nonce: ' + payload.nonce);
-
-          $.ajax({
-            url: 'http://localhost:3000/checkout',
+         $.ajax({
+            url: environment.AWSURL + 'checkout',
             type: 'POST',
             data: JSON.stringify({
               payment_method_nonce: payload.nonce
             }),
             contentType: 'application/json',
             success: function (data) {
-              console.log(data.success);
+           //   console.log("data.transaction.status=" + data.transaction.status);
+           //   console.log("data.transaction.status=" + JSON.stringify(data.transaction.status));
+
               if (data.success) {
+                     submit.style.backgroundColor = 'rgba(0, 0, 0, .54)';
+            submit.setAttribute('disabled', 'true');
                 alert('Payment authorized, thanks.');
+
+
               } else {
                 alert('Payment failed: ' + data.message + ' Please refresh the page and try again.');
+                console.error("data=" + JSON.stringify(data));
+                     submit.style.backgroundColor = 'rgba(0, 0, 0, .54)';
+            submit.setAttribute('disabled', 'true');
+
               }
             },
             error: function (error) {
               alert('Error: cannot connect to server. Please make sure your server is running.');
+              console.error(error);
             }
           });
-          //     var json = JSON.stringify([{"payment_method_nonce":payload.nonce}]);
-          //    document.getElementById('payment-method-nonce').setAttribute('value', json);
-          //       console.log('voor submit form' + $.parseJSON($('#inputF').val()));
-          //console.log('voor submit form' + (<HTMLInputElement>document.getElementById('payment-method-nonce')).value);
-          // Put `payload.nonce` into the `payment-method-nonce` input, and then
-          // submit the form. Alternatively, you could send the nonce to your server
-          // with AJAX.
-          //    (<HTMLInputElement>document.querySelector('input[name="payment-method-nonce"]')).value = payload.nonce;
-          //   form.action = 'http://localhost:3000/checkout';
-          //       form.submit();
         });
       }, false);
     });

@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment.prod';
 import { Http } from '@angular/http';
 import { Component, OnInit } from '@angular/core';
 import * as braintree from 'braintree-web';
@@ -16,7 +17,7 @@ message: string;
     this.message = "...Loading";
   }
  getToken() {
-    this.http.get('http://localhost:3000/api/v1/token').first().subscribe(
+    this.http.get( environment.AWSURL + 'api/v1/token').first().subscribe(
       data => {
 
         if (data.status === 200) {
@@ -26,10 +27,10 @@ message: string;
           this.makeTransaction();
         }
         else {
-          console.log("error in getToken, status =" + data.status + "REASON: " + data.statusText);
+          console.error("error in getToken, status =" + data.status + "REASON: " + data.statusText);
         }
       }, (error: any) => {
-        console.log("error in subscribe gettoken=" + error);
+        console.error("error in subscribe gettoken=" + error);
       }
     );
   }
@@ -45,7 +46,6 @@ message: string;
     let submit: HTMLElement = (<HTMLElement>document.querySelector('input[type="submit"]'));
 
 
-    console.info('author=' + this.authorization);
 
 
     braintree.client.create({
@@ -155,15 +155,13 @@ hostedFieldsInstance.on('validityChange', function (event) {
             }
  // If this was a real integration, this is where you would
               // send the nonce to your server.
-              console.log('Got a nonce: ' + payload.nonce);
 
             // Put `payload.nonce` into the `payment-method-nonce` input, and then
             // submit the form. Alternatively, you could send the nonce to your server
             // with AJAX.
             (<HTMLInputElement>document.querySelector('input[name="payment-method-nonce"]')).value = payload.nonce;
-            form.action = 'http://localhost:3000/checkout';
+            form.action = environment.AWSURL + 'checkout';
             form.submit();
-            console.info('na submit form');
           });
         }, false);
       });
